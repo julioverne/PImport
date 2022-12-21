@@ -302,23 +302,58 @@ static unsigned char decodingTable[128];
 	if(indexPath.section == 0) {
 		//
 	} else if(indexPath.section == 1) {
-		UIAlertView *alert = [[UIAlertView alloc]
-			initWithTitle:@"Input Direct Media URL Or File Path"
-			message:nil
-			delegate:self
-			cancelButtonTitle:[[NSBundle bundleWithPath:@"/System/Library/Frameworks/UIKit.framework"]?:[NSBundle mainBundle] localizedStringForKey:@"Cancel" value:@"Cancel" table:nil]
-			otherButtonTitles:
-            @"OK",
-			nil];
-		[alert setContext:@"importurl"];
-		[alert setNumberOfRows:1];
-		[alert addTextFieldWithValue:[UIPasteboard generalPasteboard].string?:@"" label:@""];
-		UITextField *traitsF = [[alert textFieldAtIndex:0] textInputTraits];
-		[traitsF setAutocapitalizationType:UITextAutocapitalizationTypeNone];
-		[traitsF setAutocorrectionType:UITextAutocorrectionTypeNo];
-		//[traitsF setKeyboardType:UIKeyboardTypeURL];
-		[traitsF setReturnKeyType:UIReturnKeyNext];
-		[alert show];
+		
+		if(objc_getClass("UIAlertController") != nil) {
+			
+			UIAlertController *alert = [objc_getClass("UIAlertController") alertControllerWithTitle:@"Input Direct Media URL Or File Path" message:nil preferredStyle:UIAlertControllerStyleAlert];
+	
+			[alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+				textField.placeholder = @"URL / File Path";
+				
+				NSString* hRefCopy = [UIPasteboard generalPasteboard].string;
+				if(hRefCopy != nil) {
+					textField.text = hRefCopy;
+				}
+			}];
+			
+			UIAlertAction* Action2 = [objc_getClass("UIAlertAction") actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+				UITextField *newName = alert.textFields.firstObject;
+				if(newName && ![newName.text isEqualToString:@""]) {
+					NSString *href = newName.text;
+					@try {
+						[self.navigationController pushViewController:[[%c(PImportEditTagListController) alloc] initWithURL:fixURLRemoteOrLocalWithPath(href)] animated:YES];
+					} @catch (NSException * e) {
+					}
+				}
+			}];
+			[alert addAction:Action2];
+			
+			
+			UIAlertAction *cancel = [objc_getClass("UIAlertAction") actionWithTitle:[[NSBundle bundleWithPath:@"/System/Library/Frameworks/UIKit.framework"]?:[NSBundle mainBundle] localizedStringForKey:@"Cancel" value:@"Cancel" table:nil] style:UIAlertActionStyleCancel handler:nil];
+			[alert addAction:cancel];
+			[self presentViewController:alert animated:YES completion:nil];
+			
+		} else {
+			
+			UIAlertView *alert = [[objc_getClass("UIAlertView") alloc]
+				initWithTitle:@"Input Direct Media URL Or File Path"
+				message:nil
+				delegate:self
+				cancelButtonTitle:[[NSBundle bundleWithPath:@"/System/Library/Frameworks/UIKit.framework"]?:[NSBundle mainBundle] localizedStringForKey:@"Cancel" value:@"Cancel" table:nil]
+				otherButtonTitles:
+				@"OK",
+				nil];
+			[alert setContext:@"importurl"];
+			[alert setNumberOfRows:1];
+			[alert addTextFieldWithValue:[UIPasteboard generalPasteboard].string?:@"" label:@""];
+			UITextField *traitsF = [[alert textFieldAtIndex:0] textInputTraits];
+			[traitsF setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+			[traitsF setAutocorrectionType:UITextAutocorrectionTypeNo];
+			//[traitsF setKeyboardType:UIKeyboardTypeURL];
+			[traitsF setReturnKeyType:UIReturnKeyNext];
+			[alert show];
+			
+		}
 	} else if(indexPath.section == 2) {
 		@try {
 			[self.navigationController pushViewController:[PImportUploadController sharedInstance] animated:YES];
@@ -356,7 +391,7 @@ static unsigned char decodingTable[128];
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
 	if(section == [self numberOfSectionsInTableView:tableView]-1) {
-		return @"\n\nPImport © 2018 julioverne";
+		return @"\n\nPImport © 2021 julioverne";
 	}
 	return [super tableView:tableView titleForFooterInSection:section];
 }
@@ -442,7 +477,7 @@ static NSString * formatFileSizeFromBytes(long long fileSize)
 	cell.imageView.image = nil;
 	cell.textLabel.text = nil;
 	cell.detailTextLabel.text = nil;
-	cell.textLabel.textColor = [UIColor blackColor];
+	//cell.textLabel.textColor = [UIColor blackColor];
 	
 	if ([indexPath section] == 0) {
 		if (indexPath.row == 0) {
@@ -914,7 +949,7 @@ static NSString * formatFileSizeFromBytes(long long fileSize)
 		[specifiers addObject:spec];
 		
 		spec = [PSSpecifier emptyGroupSpecifier];
-        [spec setProperty:@"PImport © 2018 julioverne" forKey:@"footerText"];
+        [spec setProperty:@"PImport © 2021 julioverne" forKey:@"footerText"];
         [specifiers addObject:spec];
 		_specifiers = [specifiers copy];
 	}

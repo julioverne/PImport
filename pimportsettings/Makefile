@@ -1,16 +1,16 @@
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = PImport
-PImport_FILES = /mnt/d/codes/PImport/pimportsettings/PImportController.mm
-PImport_INSTALL_PATH = /Library/PreferenceBundles
-PImport_FRAMEWORKS = UIKit QuartzCore CoreGraphics MessageUI Social Twitter
-PImport_PRIVATE_FRAMEWORKS = Preferences
-PImport_CFLAGS = -fobjc-arc
-PImport_LDFLAGS = -Wl,-segalign,4000
-PImport_ARCHS = armv7 arm64
-export ARCHS = armv7 arm64
+
+$(BUNDLE_NAME)_FILES = /mnt/d/codes/PImport/pimportsettings/PImportController.mm
+
+$(BUNDLE_NAME)_INSTALL_PATH = /Library/PreferenceBundles
+$(BUNDLE_NAME)_FRAMEWORKS = UIKit QuartzCore CoreGraphics MessageUI Social Twitter
+$(BUNDLE_NAME)_PRIVATE_FRAMEWORKS = Preferences
+$(BUNDLE_NAME)_CFLAGS = -fobjc-arc
+$(BUNDLE_NAME)_LDFLAGS = -Wl,-segalign,4000
+
+$(BUNDLE_NAME)_ARCHS = armv7 armv7s arm64 arm64e
+export ARCHS = armv7 armv7s arm64 arm64e
 
 include $(THEOS_MAKE_PATH)/bundle.mk
-
-all::
-	

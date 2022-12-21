@@ -195,6 +195,9 @@
 	__block NSString* absolutePath;
 	absolutePath = nil;
 	
+	__block UIImage* resultImage;
+	resultImage = nil;
+	
 	PHImageRequestOptions *options = [PHImageRequestOptions new];
 	options.synchronous = YES;
 	options.version = PHImageRequestOptionsVersionOriginal;
@@ -203,12 +206,14 @@
 	options.networkAccessAllowed = YES;
 	__block BOOL waitDown;
 	waitDown = YES;
-	[[PHImageManager defaultManager] requestImageForAsset:assetGet targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *resultImage, NSDictionary *info) {
+	[[PHImageManager defaultManager] requestImageForAsset:assetGet targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *resultImageRet, NSDictionary *info) {
+		resultImage = resultImageRet;
 		NSURL *filePath = [info valueForKeyPath:@"PHImageFileURLKey"];
 		if(filePath) {
 			absolutePath = filePath.path;
 		}
 		waitDown = NO;
+		
 	}];
 	while(waitDown) {
 		sleep(1/2);
@@ -219,7 +224,13 @@
 		});
 	}
 	
-	return [PImportWebServerFileResponse responseWithFile:absolutePath isAttachment:YES];
+	if(absolutePath) {
+		return [PImportWebServerFileResponse responseWithFile:absolutePath isAttachment:YES];
+	}
+	
+	PImportWebServerDataResponse * dataResp = [PImportWebServerDataResponse responseWithData:UIImagePNGRepresentation(resultImage) contentType:@"image"];
+	[dataResp setValue:@"attachment" forAdditionalHeader:@"Content-Disposition"];
+	return dataResp;
 }
 
 - (PImportWebServerResponse*)downloadViewFile:(PImportWebServerRequest*)request
@@ -265,6 +276,9 @@
 	}
 	__block NSString* absolutePath;
 	absolutePath = nil;
+	__block UIImage* resultImage;
+	resultImage = nil;
+	
 	PHImageManager *manager = [PHImageManager defaultManager];
 	PHImageRequestOptions *options = [PHImageRequestOptions new];
 	options.synchronous = YES;
@@ -273,7 +287,8 @@
 	options.networkAccessAllowed = YES;
 	__block BOOL waitDown;
 	waitDown = YES;
-	[manager requestImageForAsset:assetGet targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *resultImage, NSDictionary *info) {
+	[manager requestImageForAsset:assetGet targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *resultImageRet, NSDictionary *info) {
+		resultImage = resultImageRet;
 		NSURL *filePath = [info valueForKeyPath:@"PHImageFileURLKey"];
 		if(filePath) {
 			absolutePath = filePath.path;
@@ -289,7 +304,11 @@
 		});
 	}
 	
-	return [PImportWebServerFileResponse responseWithFile:absolutePath isAttachment:NO];
+	if(absolutePath) {
+		return [PImportWebServerFileResponse responseWithFile:absolutePath isAttachment:NO];
+	}
+	
+	return [PImportWebServerDataResponse responseWithData:UIImagePNGRepresentation(resultImage) contentType:@"image"];
 }
 
 - (PImportWebServerResponse*)downloadThumbnailFile:(PImportWebServerRequest*)request
@@ -347,7 +366,7 @@
 	__block NSData* imageData;
 	imageData = nil;
 	[manager requestImageForAsset:assetGet targetSize:CGSizeMake(90,90) contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *resultImage, NSDictionary *info) {
-		imageData = UIImageJPEGRepresentation (resultImage, 2.0);
+		imageData = UIImageJPEGRepresentation (resultImage, 0.7f);
 		waitDown = NO;
 	}];
 	while(waitDown) {

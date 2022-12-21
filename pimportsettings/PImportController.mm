@@ -57,7 +57,7 @@
 		[spec setProperty:[UIImage imageWithContentsOfFile:[[self bundle] pathForResource:@"twitter" ofType:@"png"]] forKey:@"iconImage"];
         [specifiers addObject:spec];
 		spec = [PSSpecifier emptyGroupSpecifier];
-        [spec setProperty:@"PImport © 2018 julioverne" forKey:@"footerText"];
+        [spec setProperty:@"PImport © 2021 julioverne" forKey:@"footerText"];
         [specifiers addObject:spec];
 		_specifiers = [specifiers copy];
 	}

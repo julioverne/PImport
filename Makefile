@@ -6,6 +6,3 @@ SUBPROJECTS += pimportsb
 SUBPROJECTS += pimportsettings
 
 include $(THEOS_MAKE_PATH)/aggregate.mk
-
-all::
-	
